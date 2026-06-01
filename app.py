@@ -416,19 +416,26 @@ st.dataframe(
     use_container_width=True
 )
 
-#TAB 3 PERBANDINGAN
+# TAB 3 PERBANDINGAN
 with tab3:
 
     compare_fig = go.Figure()
 
+    # TLKM
+    df["Normalized"] = (
+        df["Close"] /
+        df["Close"].iloc[0]
+    ) * 100
+
     compare_fig.add_trace(
         go.Scatter(
             x=df.index,
-            y=df["Close"],
+            y=df["Normalized"],
             name="TLKM"
         )
     )
 
+    # Saham pembanding
     for stock in comparison:
 
         tmp = yf.download(
@@ -438,13 +445,28 @@ with tab3:
             progress=False
         )
 
+        if isinstance(tmp.columns, pd.MultiIndex):
+            tmp.columns = tmp.columns.get_level_values(0)
+
+        tmp["Normalized"] = (
+            tmp["Close"] /
+            tmp["Close"].iloc[0]
+        ) * 100
+
         compare_fig.add_trace(
             go.Scatter(
                 x=tmp.index,
-                y=tmp["Close"],
+                y=tmp["Normalized"],
                 name=stock.replace(".JK","")
             )
         )
+
+    compare_fig.update_layout(
+        title="Perbandingan Kinerja Saham (%)",
+        xaxis_title="Tanggal",
+        yaxis_title="Indeks (Base = 100)",
+        height=600
+    )
 
     st.plotly_chart(
         compare_fig,
