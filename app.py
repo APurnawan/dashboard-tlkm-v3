@@ -13,12 +13,20 @@ st.set_page_config(
 
 @st.cache_data(ttl=3600)
 def load_stock(period):
-    return yf.download(
-        "TLKM.JK",
-        period=period,
-        auto_adjust=True,
-        progress=False
-    )
+    try:
+        df = yf.download(
+            "TLKM.JK",
+            period=period,
+            auto_adjust=True,
+            progress=False,
+            threads=False
+        )
+
+        return df
+
+    except Exception as e:
+        st.error(f"Error download data: {e}")
+        return pd.DataFrame()
 
 forecast_df = pd.read_csv("forecast_30.csv")
 actual_pred_df = pd.read_csv("actual_vs_prediction.csv")
