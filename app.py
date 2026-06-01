@@ -11,22 +11,22 @@ st.set_page_config(
     layout="wide"
 )
 
+
 @st.cache_data(ttl=3600)
 def load_stock(period):
-    try:
-        df = yf.download(
-            "TLKM.JK",
-            period=period,
-            auto_adjust=True,
-            progress=False,
-            threads=False
-        )
 
-        return df
+    df = yf.download(
+        "TLKM.JK",
+        period=period,
+        auto_adjust=True,
+        progress=False
+    )
 
-    except Exception as e:
-        st.error(f"Error download data: {e}")
-        return pd.DataFrame()
+    # FIX MultiIndex
+    if isinstance(df.columns, pd.MultiIndex):
+        df.columns = df.columns.get_level_values(0)
+
+    return df
 
 forecast_df = pd.read_csv("forecast_30.csv")
 actual_pred_df = pd.read_csv("actual_vs_prediction.csv")
@@ -52,7 +52,7 @@ comparison = st.sidebar.multiselect(
 
 df = load_stock(periode)
 
-st.write(df.columns)
+
 
 #INDIKATOR
 df["MA20"] = df["Close"].rolling(20).mean()
