@@ -112,10 +112,9 @@ c4.metric(
     signal
 )
 
-c5.metric(
-    "Model",
-    "Multivariate LSTM"
-)
+with c5:
+    st.markdown("**Model**")
+    st.info("Multivariate LSTM")
 
 #TAB 1
 tab1,tab2,tab3,tab4 = st.tabs([
